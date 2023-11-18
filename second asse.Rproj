@@ -11,3 +11,47 @@ Encoding: UTF-8
 
 RnwWeave: Sweave
 LaTeX: pdfLaTeX
+> # Function to create a special "matrix" object that can cache its inverse
+> makeCacheMatrix <- function(mat) {
++     inverse <- NULL
++     set <- function(newValue) {
++         mat <<- newValue
++         inverse <<- NULL
++     }
++     get <- function() mat
++     setinverse <- function(newInverse) inverse <<- newInverse
++     getinverse <- function() inverse
++     list(set = set, get = get, setinverse = setinverse, getinverse = getinverse)
++ }
+> 
+> # Function to compute the inverse of the special "matrix" and cache the result
+> cacheSolve <- function(cacheMatrix) {
++     inverse <- cacheMatrix$getinverse()
++     if (!is.null(inverse)) {
++         message("Getting cached data")
++         return(inverse)
++     }
++     
++     mat <- cacheMatrix$get()
++     inverse <- solve(mat)
++     cacheMatrix$setinverse(inverse)
++     inverse
++ }
+> 
+> # Create a matrix
+> myMatrix <- matrix(c(4, 2, 1, 3), nrow = 2, ncol = 2, byrow = TRUE)
+> 
+> # Create a cache matrix object
+> myCacheMatrix <- makeCacheMatrix(myMatrix)
+> 
+> # Compute and cache the inverse
+> inverseResult <- cacheSolve(myCacheMatrix)
+> 
+> # Retrieve the cached inverse
+> cachedResult <- cacheSolve(myCacheMatrix)
+Getting cached data
+> 
+> cachedResult
+     [,1] [,2]
+[1,]  0.3 -0.2
+[2,] -0.1  0.4
